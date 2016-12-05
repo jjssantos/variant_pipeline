@@ -71,10 +71,12 @@ def infer(x):
 
 
 def infer_all(data,low,high):
-    data=data.assign(id_pos = data['chr']+ data['pos'].map(str)+"-"+data["Id"].map(str))
-    total_freq=data.groupby("id_pos")['freq.var'].apply(np.sum)
+    data=data.assign(id_pos = data['chr']+ data['pos'].map(str)+"-"+data["Id"])
+    data=data.assign(exp_freq = (data['n.tst.bw']+data['n.tst.fw'])/(data['cov.tst.bw']+data['cov.tst.fw'])) # This is the expected frequency if there was nothing in the control
+    total_freq=data.groupby("id_pos")['exp_freq'].apply(np.sum)
     total_freq=total_freq.to_frame("total_freq")
     total_freq.loc[total_freq.index,"id_pos"]=total_freq.index
+    #print total_freq
     data=data.merge(total_freq,how='left',on='id_pos')
     #print(data.columns)
   
